@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>کوییز تشخیص نوع پوست</title>
+<style>
+body { font-family: Tahoma, sans-serif; direction: rtl; padding: 20px; background-color: #fff8f0; }
+.container { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+h2 { text-align: center; color: #d2691e; }
+.question { margin-top: 20px; }
+label { display: block; margin: 10px 0; }
+input[type="text"], input[type="number"], select { width: 100%; padding: 8px; margin-top: 5px; border-radius: 5px; border: 1px solid #ccc; }
+button { background-color: #d2691e; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px; }
+button:hover { background-color: #a0522d; }
+.result { margin-top: 20px; padding: 15px; background-color: #fff0e0; border-radius: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+<h2>🌸 خوش آمدید به کوییز تشخیص نوع پوست 🌸</h2>
+<p>سلام! این کوییز به شما کمک می‌کنه نوع پوست خودتون رو بشناسید و بهترین مراقبت‌ها رو پیدا کنید. فقط چند دقیقه وقت لازم دارید تا با پاسخ دادن به چند سوال ساده، نتیجه دقیق رو ببینید و در صورت تمایل به مشاوره تخصصی و دریافت روتین اختصاصی خودتون از طریق واتساپ پیام بدید.</p>
+
+<div id="form-section">
+<h3>اطلاعات اولیه</h3>
+<label>نام:<input type="text" id="firstName"></label>
+<label>نام خانوادگی:<input type="text" id="lastName"></label>
+<label>شماره موبایل:<input type="text" id="phone"></label>
+<label>جنسیت:
+<select id="gender">
+<option value="مرد">مرد</option>
+<option value="زن">زن</option>
+</select>
+</label>
+<label>سن:<input type="number" id="age" min="1" max="120"></label>
+<button onclick="startQuiz()">شروع کوییز</button>
+</div>
+
+<div id="quiz-section" style="display:none;"></div>
+<div id="result-section" style="display:none;"></div>
+
+<script>
+const quizQuestions = [
+  { q: 'پوست شما معمولاً چگونه است؟', a: ['چرب', 'خشک', 'مختلط', 'نرمال'] },
+  { q: 'پوست شما چقدر حساس است؟', a: ['خیلی حساس', 'کمی حساس', 'حساس نیست'] },
+  { q: 'بعد از شستشو پوست شما چه حسی دارد؟', a: ['کشیده و خشک', 'چرب و براق', 'نرمال'] },
+  { q: 'پوست شما مستعد جوش و آکنه است؟', a: ['بله', 'خیر', 'گاهی'] },
+  { q: 'پوست شما در طول روز چقدر چرب می‌شود؟', a: ['خیلی', 'کم', 'تقریبا نه'] },
+  { q: 'آیا پوست شما نقاط خشک و پوسته پوسته دارد؟', a: ['بله', 'خیر', 'کمی'] },
+  { q: 'آیا پوست شما منافذ باز دارد؟', a: ['بله', 'خیر', 'اندک'] }
+];
+
+let userAnswers = [];
+let currentQuestion = 0;
+
+function startQuiz() {
+  const firstName = document.getElementById('firstName').value;
+  const lastName = document.getElementById('lastName').value;
+  const phone = document.getElementById('phone').value;
+  const age = document.getElementById('age').value;
+  const gender = document.getElementById('gender').value;
+  if(!firstName || !lastName || !phone || !age) { alert('لطفا همه اطلاعات را وارد کنید'); return; }
+  document.getElementById('form-section').style.display = 'none';
+  showQuestion();
+}
+
+function showQuestion() {
+  if(currentQuestion >= quizQuestions.length) { showResult(); return; }
+  const q = quizQuestions[currentQuestion];
+  let html = `<div class='question'><h3>سوال ${currentQuestion+1}: ${q.q}</h3>`;
+  q.a.forEach((ans,i)=>{ html += `<label><input type='radio' name='q${currentQuestion}' value='${ans}'> ${ans}</label>`; });
+  html += `<button onclick='nextQuestion()'>بعدی</button></div>`;
+  document.getElementById('quiz-section').innerHTML = html;
+  document.getElementById('quiz-section').style.display = 'block';
+}
+
+function nextQuestion() {
+  const radios = document.getElementsByName('q'+currentQuestion);
+  let selected = null;
+  radios.forEach(r => { if(r.checked) selected = r.value; });
+  if(!selected) { alert('لطفا یک گزینه انتخاب کنید'); return; }
+  userAnswers.push(selected);
+  currentQuestion++;
+  showQuestion();
+}
+
+function showResult() {
+  document.getElementById('quiz-section').style.display = 'none';
+  let counts = { چرب:0, خشک:0, مختلط:0, نرمال:0 };
+  userAnswers.forEach(a=>{ if(counts[a]!==undefined) counts[a]++; });
+  let max = Math.max(...Object.values(counts));
+  let type = Object.keys(counts).find(key=>counts[key]===max);
+
+  let description = '';
+  if(type==='چرب') description = 'پوست چرب: منافذ باز و درخشان، مستعد جوش. توصیه: استفاده از شوینده سبک، مرطوب‌کننده بدون چربی و ضد آفتاب سبک.';
+  if(type==='خشک') description = 'پوست خشک: حساس و کشیده، نیاز به آبرسانی. توصیه: استفاده از کرم‌های مرطوب‌کننده قوی و روغن‌های طبیعی.';
+  if(type==='مختلط') description = 'پوست مختلط: چرب در ناحیه T و خشک در گونه‌ها. توصیه: مراقبت ترکیبی و استفاده از محصولات متعادل‌کننده.';
+  if(type==='نرمال') description = 'پوست نرمال: متعادل، سالم و کم مشکل. توصیه: مراقبت روزانه، مرطوب‌کننده و ضد آفتاب.';
+
+  document.getElementById('result-section').innerHTML = `<div class='result'><h3>نوع پوست شما: ${type}</h3><p>${description}</p><p><a href='https://wa.me/989102365941' target='_blank'><button>مشاوره تخصصی واتساپ</button></a></p></div>`;
+  document.getElementById('result-section').style.display = 'block';
+}
+</script>
+</div>
+</body>
+</html>
